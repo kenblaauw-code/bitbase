@@ -4,39 +4,43 @@ defmodule BitbaseWeb.PriceLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    if connected?(socket) do
-      Process.send_after(self(), :update_price, 100)
-    end
-
-    {:ok,
-     socket
-     |> assign(:price, "—")
-     |> assign(:change, "+0%")}
+    if connected?(socket), do: Process.send_after(self(), :update_price, 100)
+    {:ok, assign(socket, price: "—", change: "+0%", prev_price: nil)}
   end
 
   @impl true
   def handle_info(:update_price, socket) do
-    socket =
-      case BitcoinPrice.get_usd() do
-        # {:ok, price} — Successful API response
-        {:ok, price} ->
-          # Enum.random(-5..15) — Random int in range (demo change)
-          change = Enum.random(-5..15)
+    case BitcoinPrice.get_usd() do
+      {:ok, current_price} ->
+        {new_price_str, change} =
+          case socket.assigns.prev_price do
+            nil ->
+              {format_price(current_price), "+0%"}
 
+            prev_price when is_number(prev_price) ->
+              change_percent = (current_price - prev_price) / prev_price * 100
+
+              change_str =
+                if change_percent >= 0,
+                  do: "+#{:erlang.float_to_binary(change_percent, decimals: 2)}%",
+                  else: "#{:erlang.float_to_binary(change_percent, decimals: 2)}%"
+
+              {format_price(current_price), change_str}
+          end
+
+        socket =
           socket
-          |> assign(:price, format_price(price))
-          |> assign(:change, format_change(change))
+          |> assign(:price, new_price_str)
+          |> assign(:change, change)
+          # Store for next tick
+          |> assign(:prev_price, current_price)
 
-        # {:error, _} — Any error (network, parsing, etc.)
-        {:error, _} ->
-          assign(socket, :price, "Error - Come back later")
-      end
+        Process.send_after(self(), :update_price, 30_000)
+        {:noreply, socket}
 
-    # Reschedule next update — 30,000 ms = 30 seconds
-    Process.send_after(self(), :update_price, 30_000)
-
-    # {:noreply, socket} — Tells LiveView to push changes to browser
-    {:noreply, socket}
+      {:error, _} ->
+        assign(socket, :price, "offline")
+    end
   end
 
   @impl true
