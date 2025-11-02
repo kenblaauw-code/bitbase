@@ -64,8 +64,12 @@ defmodule Bitbase.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.26"},
       {:jason, "~> 1.2"},
+      {:number, "~> 1.0"},
       {:dns_cluster, "~> 0.2.0"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+
+      # NEW: HTTP client for CoinGecko
+      {:httpoison, "~> 2.2"}
     ]
   end
 

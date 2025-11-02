@@ -16,8 +16,7 @@ defmodule BitbaseWeb.Router do
 
   scope "/", BitbaseWeb do
     pipe_through :browser
-
-    get "/", PageController, :home
+    live "/", PriceLive, :index
   end
 
   # Other scopes may use custom stacks.
