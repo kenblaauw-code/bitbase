@@ -131,7 +131,7 @@ defmodule BitbaseWeb.PriceLive do
     chart_height = 120
     padding = 20
 
-    path =
+    line_path =
       points
       |> Enum.with_index()
       |> Enum.map(fn {{_ts, p}, i} ->
@@ -141,11 +141,33 @@ defmodule BitbaseWeb.PriceLive do
       end)
       |> Enum.join(" ")
 
-    assigns = assign(assigns, :sparkline_path, path)
+    # Close path for fill: line + bottom + back to start
+    first_x = padding
+    last_x = chart_width - padding
+
+    fill_path =
+      "#{line_path} L #{last_x},#{chart_height - padding} L #{first_x},#{chart_height - padding} Z"
+
+    assigns =
+      assigns
+      |> assign(:line_path, line_path)
+      |> assign(:fill_path, fill_path)
 
     ~H"""
     <svg width="600" height="120" class="w-full">
-      <path d={@sparkline_path} fill="none" stroke="#f97316" stroke-width="2" />
+      <!-- Gradient Definition -->
+      <defs>
+        <linearGradient id="orange-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#f97316; stop-opacity:0.3" />
+          <stop offset="100%" style="stop-color:#f97316; stop-opacity:0" />
+        </linearGradient>
+      </defs>
+
+      <!-- Filled Area -->
+      <path d={@fill_path} fill="url(#orange-gradient)" />
+
+      <!-- Line -->
+      <path d={@line_path} fill="none" stroke="#f97316" stroke-width="2" />
     </svg>
     """
   end
