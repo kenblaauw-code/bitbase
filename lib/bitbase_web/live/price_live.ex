@@ -87,7 +87,15 @@ defmodule BitbaseWeb.PriceLive do
   def render(assigns) do
     ~H"""
     <div class="bg-main min-h-screen p-4">
-      <div class="price-card p-8 rounded-2xl shadow-2xl text-center max-w-md mx-auto mb-8">
+      <!-- Logo in upper left -->
+    <div class="absolute top-4 left-1/2 -translate-x-1/2">
+        <h1 class="text-3xl font-bold text-orange-600">
+          <span class="text-white">Bit</span><span class="text-4xl">₿</span><span class="text-white">ase</span>
+        </h1>
+      </div>
+
+      <!-- Live price card -->
+      <div class="price-card p-8 rounded-2xl shadow-2xl text-center max-w-md mx-auto mb-8 mt-16">
         <p class="text-lg text-gray-300 mb-2">Current BTC Price</p>
         <p class="text-6xl font-mono text-white"><%= @price %></p>
         <p class={"text-2xl mt-2 #{if String.starts_with?(@change, "+"), do: "text-green-400", else: "text-red-400"}"}>
@@ -95,6 +103,7 @@ defmodule BitbaseWeb.PriceLive do
         </p>
       </div>
 
+      <!-- Rest of your UI -->
       <div class="flex justify-center space-x-2 mb-6">
         <%= for r <- @ranges do %>
           <button
