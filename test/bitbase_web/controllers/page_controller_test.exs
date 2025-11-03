@@ -1,8 +1,8 @@
 defmodule BitbaseWeb.PageControllerTest do
   use BitbaseWeb.ConnCase
 
-  test "GET /", %{conn: conn} do
-    conn = get(conn, ~p"/")
-    assert html_response(conn, 200) =~ "Peace of mind from prototype to production"
+  test "GET / renders PriceLive", %{conn: conn} do
+    conn = get(conn, "/")
+    assert html_response(conn, 200) =~ "Current BTC Price"
   end
 end

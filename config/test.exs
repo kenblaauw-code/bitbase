@@ -7,7 +7,7 @@ import Config
 # Run `mix help test` for more information.
 config :bitbase, Bitbase.Repo,
   username: "postgres",
-  password: "postgres",
+  password: System.get_env("PG_PASSWORD"),
   hostname: "localhost",
   database: "bitbase_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
